@@ -63,40 +63,6 @@ figure01
     MariaDB -> Redis [
         label = "GET"
     ];
-
-    edge [
-        fontcolor = "default"
-        color = "default"
-        dir ="none"
-        arrowhead="none"
-        arrowtail="none"
-        penwidth = 0.5
-        style="dashed"
-    ];
-    node [
-        fontname = "Consolas"
-        fontsize = 10
-        penwidth = 0.5
-        color    = "gray"
-        shape = "record"
-        style = "rounded"
-    ];
-
-    MariaDB_Data [
-      label = "MariaDB data | {{item | shoes | books } | {stock | 35 | 158}}"
-    ];
-    {
-      rank = "same";
-      MariaDB:s -> MariaDB_Data:n;
-    }
-
-    Redis_Data [
-      label = "Redis data | {{key | shoes | books } | {value | 35 | 158}}"
-    ];
-    {
-      rank = "same";
-      Redis:s -> Redis_Data:n;
-    }
   }
 figure01
 </details>
