@@ -65,6 +65,7 @@ all: $(PLUGIN_LIBNAME)
 
 #Deps
 $(PLUGIN_LIBNAME): $(DEP_MODULES)
+	@echo "PLUGIN_PATH=$(PLUGIN_PATH)" > INSTALL
 	cp -a ./lib/libhiredis.*  $(PLUGIN_PATH)
 	-(restorecon $(PLUGIN_PATH)/libhiredis.*)
 	cp -a ./lib/libcjson.*  $(PLUGIN_PATH)
@@ -77,21 +78,24 @@ hiredis:
 cJSON:
 	@(cd deps && $(MAKE) $@ CJSON_MODULE_VER=$(CJSON_MODULE_VER) INSTALL_PATH=$(CURRENT_PATH))
 
-
-
+.PHONY: all
 
 INSTALL?= cp -a
+ifneq ("$(wildcard INSTALL)", "")
+  PLUGIN_PATH=$(shell grep 'PLUGIN_PATH=' INSTALL | awk -F'=' '{print $$2}')
+endif
 
 install:
 	$(INSTALL) $(PLUGIN_LIBNAME) $(PLUGIN_PATH)
 	-(cd $(PLUGIN_PATH) && restorecon $(PLUGIN_LIBNAME))
 	-(setsebool -P mysql_connect_any 1)
-  
+
 
 
 .PHONY: install
 
 clean:
+	@-(rm -f INSTALL)
 	rm -f $(PLUGIN_LIBNAME)
 	rm -rf include lib
 
