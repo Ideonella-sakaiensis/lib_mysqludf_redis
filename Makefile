@@ -89,7 +89,11 @@ install:
 	$(INSTALL) $(PLUGIN_LIBNAME) $(PLUGIN_PATH)
 	-(cd $(PLUGIN_PATH) && restorecon $(PLUGIN_LIBNAME))
 	-(setsebool -P mysql_connect_any 1)
-
+	@echo ""
+	@echo "To register UDF, running the following sql statement in Mysql/MariaDB."
+	@echo ""
+	@echo "CREATE FUNCTION \`redis\` RETURNS STRING SONAME 'lib_mysqludf_redis.so';"
+	@echo ""
 
 
 .PHONY: install
