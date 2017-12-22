@@ -18,54 +18,7 @@ lib_mysqludf_redis
 
 簡介
 ----
-![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?1)
-<details>
-<summary></summary>
-figure01
-  digraph G {
-    
-    rankdir = "LR";
-    size ="8,8";
-
-    edge [
-        fontname = "Consolas"
-        fontsize = 10
-    ];
-    MariaDB [
-        label = "MariaDB\n(presistence)"
-        shape = "box"
-    ];
-    Redis [
-        label = "Redis\n(cached)"
-        shape = "box"
-    ];
-
-    edge [
-        fontcolor = "blue"
-        color = "blue"
-    ];
-    writer;
-    writer:e -> MariaDB [
-        label="INSERT\nUPDATE\nDELETE"
-    ];
-    MariaDB -> Redis [
-        label = "SET"
-    ];
-
-    edge [
-        fontcolor = "red"
-        color = "red"
-    ];
-    reader;
-    reader:e -> MariaDB [
-        label="SELECT"
-    ];
-    MariaDB -> Redis [
-        label = "GET"
-    ];
-  }
-figure01
-</details>
+![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?3)
 
 
 [回目錄](#%E7%9B%AE%E9%8C%84)
