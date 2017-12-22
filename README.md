@@ -18,15 +18,14 @@ Provides UDF commands to access Redis from Mysql/MariaDB.
 
 Synopsis
 --------
-![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?1)
+![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?2)
 <details>
 <summary></summary>
 figure01
   digraph G {
-    
+  
     rankdir = "LR";
     size ="8,8";
-
     edge [
         fontname = "Consolas"
         fontsize = 10
@@ -39,7 +38,6 @@ figure01
         label = "Redis\n(cached)"
         shape = "box"
     ];
-
     edge [
         fontcolor = "blue"
         color = "blue"
@@ -51,7 +49,6 @@ figure01
     MariaDB -> Redis [
         label = "SET"
     ];
-
     edge [
         fontcolor = "red"
         color = "red"
@@ -63,6 +60,37 @@ figure01
     MariaDB -> Redis [
         label = "GET"
     ];
+    edge [
+        fontcolor = "default"
+        color = "default"
+        dir ="none"
+        arrowhead="none"
+        arrowtail="none"
+        penwidth = 0.5
+        style="dashed"
+    ];
+    node [
+        fontname = "Consolas"
+        fontsize = 10
+        penwidth = 0.5
+        color    = "gray"
+        shape = "record"
+        style = "rounded"
+    ];
+    MariaDB_Data [
+      label = <<TABLE border="0" cellspacing="0" cellborder="1"><TR><TD COLSPAN="2">MariaDB data</TD></TR><TR><TD>item</TD><TD>qty</TD></TR><TR><TD>shoes</TD><TD>35</TD></TR><TR><TD>books</TD><TD>158</TD></TR></TABLE>>
+    ];
+    {
+      rank = "same";
+      MariaDB:n -> MariaDB_Data:s;
+    }
+    Redis_Data [
+      label = <<TABLE border="0" cellspacing="0" cellborder="1"><TR><TD COLSPAN="2">Redis data</TD></TR><TR><TD>item</TD><TD>qty</TD></TR><TR><TD>shoes</TD><TD>35</TD></TR><TR><TD>books</TD><TD>158</TD></TR></TABLE>>
+    ];
+    {
+      rank = "same";
+      Redis:n -> Redis_Data:s;
+    }
   }
 figure01
 </details>
