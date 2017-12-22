@@ -18,7 +18,7 @@ Provides UDF commands to access Redis from Mysql/MariaDB.
 
 Synopsis
 --------
-![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?2)
+![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?3)
 <details>
 <summary></summary>
 figure01
