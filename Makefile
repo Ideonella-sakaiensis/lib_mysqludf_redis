@@ -65,7 +65,14 @@ all: $(PLUGIN_LIBNAME)
 
 #Deps
 $(PLUGIN_LIBNAME): $(DEP_MODULES)
+ifeq ("","$(PLUGIN_PATH)")
+	@echo ""
+	@echo "Cannot find Mysql/MariaDB plugin_dir. Please specified the PLUGIN_PATH argument and try again."
+	@echo ""
+	@false
+else
 	@echo "PLUGIN_PATH=$(PLUGIN_PATH)" > INSTALL
+endif
 	cp -a ./lib/libhiredis.*  $(PLUGIN_PATH)
 	-(restorecon $(PLUGIN_PATH)/libhiredis.*)
 	cp -a ./lib/libcjson.*  $(PLUGIN_PATH)

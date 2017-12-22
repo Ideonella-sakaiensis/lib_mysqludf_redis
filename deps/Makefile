@@ -22,8 +22,7 @@ ifeq ("","$(wildcard hiredis)")
   ifeq ("","$(HIREDIS_MODULE_VER)")
 	$(error required HIREDIS_MODULE_VER)
   endif
-	chmod +x download-hiredis.sh
-	./download-hiredis.sh $(HIREDIS_MODULE_VER)
+	sh download-hiredis.sh $(HIREDIS_MODULE_VER)
 endif
 	cd hiredis && $(MAKE) && $(MAKE) install $(INSTALL_OPTIONS)
 
@@ -36,8 +35,7 @@ ifeq ("","$(wildcard cJSON)")
   ifeq ("","$(CJSON_MODULE_VER)")
 	$(error required CJSON_MODULE_VER)
   endif
-	chmod +x download-cJSON.sh
-	./download-cJSON.sh $(CJSON_MODULE_VER)
+	sh download-cJSON.sh $(CJSON_MODULE_VER)
 endif
 	cd cJSON && $(MAKE) && $(MAKE) install $(INSTALL_OPTIONS)
 
