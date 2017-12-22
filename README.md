@@ -73,7 +73,7 @@ figure01
 
 System Requirements
 -------------------
-linux 64bit, MariaDB 5.5+, Redis 1.2+
+Linux 64bit, MariaDB 5.5+, Redis 1.2+
 
 [Back to TOC](#table-of-contents)
 
@@ -96,11 +96,11 @@ The compilation arguments can be use in `make`:
 
 * `INCLUDE_PATH`
 
-  The MariaDB or Mysql c header path. If it is not specified, the default value is `/usr/include/mysql/server`.
+  The MariaDB or Mysql C header path. If it is not specified, the default value is `/usr/include/mysql/server`.
 
 * `PLUGIN_PATH`
 
-  The MariaDB or Mysql plugin path. The value can be obtain via runing the sql statement `SHOW VARIABLES LIKE '%plugin_dir%';` in MariaDB/Mysql server. If it is not specified, will detect the plugin path with `/usr/lib/mysql/plugin` or `/usr/lib64/mysql/plugin`.
+  The MariaDB or Mysql plugin path. The value can be obtained via running the sql statement `SHOW VARIABLES LIKE '%plugin_dir%';` in MariaDB/Mysql server. If it is not specified, will detect the plugin path with `/usr/lib/mysql/plugin` or `/usr/lib64/mysql/plugin`.
 
 example:
 ```bash
@@ -131,13 +131,13 @@ Usage
 
 Call a Redis command by specified `$connection_string`, `$command`, and individual arguments.
 
-* **$connection_string** - a DSN connection string , must be one of following type:
+* **$connection_string** - represent the Redis server to be connected, the value is a DSN connection string, must be one of following type:
   - **redis**://**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_**/**_`<database>`_**/**
 * **$command**, **$args...** - the Redis command and arguments. See also [https://redis.io/commands](https://redis.io/commands) for further details.
 
 
-The function Return JSON string indicating success or failure of the operation.
+The function returns a JSON string indicating success or failure of the operation.
 > the success output:
 > ```json
 > {
@@ -220,13 +220,13 @@ mysql>  SELECT `redis`('redis://@127.0.0.1/0/', 'SCAN', '0', 'MATCH', 'prefix*')
 TODO
 ----
 - [ ] implement Redis Authentication
-- [ ] add redis DSN string builder
+- [ ] add redis DSN string builder function
 
 [Back to TOC](#table-of-contents)
 
 
 Copyright and License
--------------------
+---------------------
 See [LICENSE](LICENSE) for further details.
 
 [Back to TOC](#table-of-contents)
