@@ -73,18 +73,46 @@ figure01
 
 System Requirements
 -------------------
-Linux 64bit, MariaDB 5.5+, Redis 1.2+
+* Architectures: Linux 64-bit(x64)
+* Compilers: GCC 4.1.2+
+* MariaDB 5.5+
+* Redis 1.2+
+* Dependencies:
+    * MariaDB development library 5.5+
+    * hiredis 0.13.3+
+    * cJSON 1.6+
 
 [Back to TOC](#table-of-contents)
 
 
 Compilation and Install Plugin Library
 --------------------------------------
+Installing dependencies
+> CentOS
+> ```bash
+> # install tools
+> $ yum install -y make wget gcc git
+>
+> # install mariadb development tool
+> $ yum install -y mariadb-devel
+> ```
+
+> Debain
+> ```bash
+> # install tools
+> $ apt-get install -y make wget gcc git
+>
+> # install mariadb development tool
+> $ apt-get install -y libmariadb-dev
+> ```
+
 To compile the plugin libraray just simply type `make` and `make install`.
 ```
 $ make
 $ make install
 ```
+> **NOTE**: If MariaDB developement library is 5.5, use `make INCLUDE_PAGE=/usr/include/mysql` for compiling.
+
 The compilation arguments can be use in `make`:
 * `HIREDIS_MODULE_VER`
 

@@ -73,19 +73,47 @@ figure01
 
 系統需求
 --------
-Linux 64bit, MariaDB 5.5+, Redis 1.2+
+* 架構： Linux 64-bit(x64)
+* 編譯器： GCC 4.1.2+
+* MariaDB 5.5+
+* Redis 1.2+
+* 相依套件：
+    * MariaDB development library 5.5+
+    * hiredis 0.13.3+
+    * cJSON 1.6+
 
 [回目錄](#%E7%9B%AE%E9%8C%84)
 
 
 編譯與安裝外掛元件
 ------------------
+安裝相依套件
+> CentOS
+> ```bash
+> # 安裝工具
+> $ yum install -y make wget gcc git
+>
+> # 安裝 mariadb development tool
+> $ yum install -y mariadb-devel
+> ```
+
+> Debain
+> ```bash
+> # 安裝工具
+> $ apt-get install -y make wget gcc git
+>
+> # 安裝 mariadb development tool
+> $ apt-get install -y libmariadb-dev
+> ```
+
 要編譯外掛元件最簡單的方式就是直接執行 `make` 與 `make install`.
 ```
 $ make
 $ make install
 ```
-下面是編譯時的自訂參數，可以被使用在 `make`:
+> **附記**：如果使用的 MariaDB developement library 版本是 5.5，請使用 `make INCLUDE_PAGE=/usr/include/mysql` 來編譯。
+
+下面是編譯時的自訂參數，可以被使用在 `make`：
 * `HIREDIS_MODULE_VER`
 
   要提供給元件編譯的 [hiredis](https://github.com/redis/hiredis) 版本。如果該值為空或未指定，其預設值為 `0.13.3`。
