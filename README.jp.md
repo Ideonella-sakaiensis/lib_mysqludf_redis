@@ -63,7 +63,7 @@ Mysql/MariaDBのRedisにアクセスするための一連のUDF命令を提供�
 $ make
 $ make install
 ```
-> **注**：もし開発ライブラリバージは MariaDB developement library 5.5 を使用している場合、 `make INCLUDE_PAGE=/usr/include/mysql` をコンパイルしてください。
+> **注**：もし開発ライブラリバージは MariaDB developement library 5.5 を使用している場合、 `make INCLUDE_PATH=/usr/include/mysql` をコンパイルしてください。
 
 以下は、コンパイル時のカスタムパラメータであり、 `make` で使用できます:
 * `HIREDIS_MODULE_VER`
