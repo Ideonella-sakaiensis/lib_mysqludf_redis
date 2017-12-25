@@ -18,73 +18,53 @@ Mysql/MariaDBのRedisにアクセスするための一連のUDF命令を提供�
 
 はじめに
 --------
-![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?1)
-<details>
-<summary></summary>
-figure01
-  digraph G {
-    
-    rankdir = "LR";
-    size ="8,8";
-
-    edge [
-        fontname = "Consolas"
-        fontsize = 10
-    ];
-    MariaDB [
-        label = "MariaDB\n(presistence)"
-        shape = "box"
-    ];
-    Redis [
-        label = "Redis\n(cached)"
-        shape = "box"
-    ];
-
-    edge [
-        fontcolor = "blue"
-        color = "blue"
-    ];
-    writer;
-    writer:e -> MariaDB [
-        label="INSERT\nUPDATE\nDELETE"
-    ];
-    MariaDB -> Redis [
-        label = "SET"
-    ];
-
-    edge [
-        fontcolor = "red"
-        color = "red"
-    ];
-    reader;
-    reader:e -> MariaDB [
-        label="SELECT"
-    ];
-    MariaDB -> Redis [
-        label = "GET"
-    ];
-  }
-figure01
-</details>
-
+![Alt text](https://g.gravizo.com/source/figure01?https%3A%2F%2Fraw.githubusercontent.com%2FIdeonella-sakaiensis%2Flib_mysqludf_redis%2Fmaster%2FREADME.md?3)
 
 [ディレクトリへ](#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA)
 
 
 システム要件
 ------------
-Linux 64bit, MariaDB 5.5+, Redis 1.2+
+* オペレーティングシステム： Linux 64-bit(x64)
+* コンパイラ： GCC 4.1.2+
+* MariaDB 5.5+
+* Redis 1.2+
+* 依存キット：
+    * MariaDB development library 5.5+
+    * hiredis 0.13.3+
+    * cJSON 1.6+
 
 [ディレクトリへ](#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA)
 
 
 プラグインコンポーネントのコンパイルとインストール
 --------------------------------------------------
+依存関係キットをインストールする
+> CentOS
+> ```bash
+> # ツールをインストールする
+> $ yum install -y make wget gcc git
+>
+> # mariadb development tool をインストールする
+> $ yum install -y mariadb-devel
+> ```
+
+> Debain
+> ```bash
+> # ツールをインストールする
+> $ apt-get install -y make wget gcc git
+>
+> # mariadb development tool をインストールする
+> $ apt-get install -y libmariadb-dev
+> ```
+
 プラグインコンポーネントをコンパイルする最も簡単な方法は、プラグインコンポーネント `make` と `make install` を直接実行することです。
 ```
 $ make
 $ make install
 ```
+> **注**：もし開発ライブラリバージは MariaDB developement library 5.5 を使用している場合、 `make INCLUDE_PAGE=/usr/include/mysql` をコンパイルしてください。
+
 以下は、コンパイル時のカスタムパラメータであり、 `make` で使用できます:
 * `HIREDIS_MODULE_VER`
 
