@@ -139,7 +139,7 @@ To compile the plugin libraray just simply type `make` and `make install`.
 $ make
 $ make install
 ```
-> **NOTE**: If MariaDB developement library is 5.5, use `make INCLUDE_PAGE=/usr/include/mysql` for compiling.
+> **NOTE**: If MariaDB developement library is 5.5, use `make INCLUDE_PATH=/usr/include/mysql` for compiling.
 
 The compilation arguments can be use in `make`:
 * `HIREDIS_MODULE_VER`
