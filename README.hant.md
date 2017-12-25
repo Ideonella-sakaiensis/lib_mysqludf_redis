@@ -64,7 +64,7 @@ lib_mysqludf_redis
 $ make
 $ make install
 ```
-> **附記**：如果使用的 MariaDB developement library 版本是 5.5，請使用 `make INCLUDE_PAGE=/usr/include/mysql` 來編譯。
+> **附記**：如果使用的 MariaDB developement library 版本是 5.5，請使用 `make INCLUDE_PATH=/usr/include/mysql` 來編譯。
 
 下面是編譯時的自訂參數，可以被使用在 `make`：
 * `HIREDIS_MODULE_VER`
