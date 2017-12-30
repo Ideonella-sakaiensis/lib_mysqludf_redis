@@ -37,8 +37,8 @@ parse_url(FOREIGN_SERVER *share) {
 	share->port= 0;
 
 	/*
-		No :// or @ in connection string. Must be a straight connection name of
-		either "servername" or "servername/tablename"
+	No :// or @ in connection string. Must be a straight connection name of
+	either "servername" or "servername/tablename"
 	*/
 	if ( (!strstr(share->connection_string, "://") &&
 	     (!strchr(share->connection_string, '@'))) ) {
@@ -50,8 +50,8 @@ parse_url(FOREIGN_SERVER *share) {
 		share->scheme= share->connection_string;
 
 		/*
-			Remove addition of null terminator and store length
-			for each string  in share
+		Remove addition of null terminator and store length
+		for each string  in share
 		*/
 		if (!(share->username= (char *)strstr(share->scheme, "://")))
 			goto error;
@@ -64,18 +64,18 @@ parse_url(FOREIGN_SERVER *share) {
 
 		if (!(share->hostname= (char *)strchr(share->username, '@')))
 			goto error;
-		*share->hostname++= '\0';                   // End username
+		*share->hostname++= '\0';
 
 		if ((share->password= (char *)strchr(share->username, ':'))) {
-			*share->password++= '\0';                 // End username
+			*share->password++= '\0';
 
 			/* make sure there isn't an extra / or @ */
 			if ((strchr(share->password, '/') || strchr(share->hostname, '@')))
 				goto error;
 			/*
-				Found that if the string is:
-				user:@hostname:port/db/table
-				Then password is a null string, so set to NULL
+			Found that if the string is:
+			user:@hostname:port/db/table
+			Then password is a null string, so set to NULL
 			*/
 			if (share->password[0] == '\0')
 				share->password= NULL;
@@ -208,7 +208,6 @@ redis_init(UDF_INIT *initid,
 	}
 	if (args->args[0] == NULL || args->args[1] == NULL) {
 		initid->ptr = NULL;
-		//return EXIT_SUCCESS;
 	} else {
 		if (args->arg_type[0] != STRING_RESULT ||
 				args->arg_type[1] != STRING_RESULT) {
@@ -218,7 +217,7 @@ redis_init(UDF_INIT *initid,
 	}
 	
 	initid->maybe_null = 1;
-	return 0; //EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 
@@ -238,11 +237,6 @@ redis(UDF_INIT      *initid,
       char          *error)
 {
 	// check arguments
-	if (args->arg_count < 2) {
-		// requires at last two arguments
-		*error = 1;
-		return result;
-	}
 	if (args->args[0] == NULL || args->args[1] == NULL) {
 		*is_null = 1;
 		return NULL;
@@ -275,13 +269,27 @@ redis(UDF_INIT      *initid,
 		goto final;
 	}
 	redisReply *reply;
-	reply = redisCommand(ctx, "SELECT %s", server->database);
-	if (reply != NULL) {
-		if (reply->type == REDIS_REPLY_ERROR) {
-			result = getResultFromRedisReply(reply);
-			goto final;
+	// send AUTH command to redis
+	if (server->password != NULL) {
+		reply = redisCommand(ctx, "AUTH %s", server->password);
+		if (reply != NULL) {
+			if (reply->type == REDIS_REPLY_ERROR) {
+				result = getResultFromRedisReply(reply);
+				goto final;
+			}
+			freeReplyObject(reply);
 		}
-		freeReplyObject(reply);
+	}
+	// send SELECT dbnum to redis
+	if (server->database != 0) {
+		reply = redisCommand(ctx, "SELECT %s", server->database);
+		if (reply != NULL) {
+			if (reply->type == REDIS_REPLY_ERROR) {
+				result = getResultFromRedisReply(reply);
+				goto final;
+			}
+			freeReplyObject(reply);
+		}
 	}
 
 	int  argc   = args->arg_count - 1;
