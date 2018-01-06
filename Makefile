@@ -10,7 +10,7 @@ WITH_COMPILE_CJSON   ?=1
 HIREDIS_MODULE_VER   ?=0.13.3
 CJSON_MODULE_VER     ?=1.6.0
 
-INCLUDE_PATH ?=/usr/include/mysql/server
+INCLUDE_PATH ?=
 PLUGIN_PATH  ?=
 
 CURRENT_PATH  =$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -48,6 +48,9 @@ PLUGIN_LIBNAME=$(PLUGIN_NAME).$(DYLIBSUFFIX)
 
 
 # Initialize variants
+ifeq ("","$(INCLUDE_PATH)")
+  INCLUDE_PATH=$(shell mysql_config --variable=pkgincludedir)/server
+endif
 ifeq ("","$(PLUGIN_PATH)")
   PLUGIN_PATH=$(shell mysql_config --plugindir)
 endif
@@ -118,14 +121,14 @@ MYSQL_PORT?=$(shell mysql_config --port)
 MYSQL=mysql -P $(MYSQL_PORT) -u root -p
 
 installdb:
-	$(MYSQL) < install.sql
+	$(MYSQL) < installdb.sql
 
 .PHONY: installdb
 
 
 
 uninstalldb:
-	$(MYSQL) < uninstall.sql
+	$(MYSQL) < uninstalldb.sql
 
 .PHONY: uninstalldb
 
