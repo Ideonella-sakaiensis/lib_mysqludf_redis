@@ -32,13 +32,24 @@ typedef struct st_foreign_server {
 } FOREIGN_SERVER;
 
 
+static void
+freeServer(FOREIGN_SERVER *server) {
+	if (server != NULL) {
+		if (server->connection_string != NULL) {
+			free(server->connection_string);
+		}
+		free(server);
+	}
+}
+
+
 static int
 parse_url(FOREIGN_SERVER *share) {
 	share->port= 0;
 
 	/*
-	No :// or @ in connection string. Must be a straight connection name of
-	either "servername" or "servername/tablename"
+	   No :// or @ in connection string. Must be a straight connection name of
+	   either "servername" or "servername/tablename"
 	*/
 	if ( (!strstr(share->connection_string, "://") &&
 	     (!strchr(share->connection_string, '@'))) ) {
@@ -50,8 +61,8 @@ parse_url(FOREIGN_SERVER *share) {
 		share->scheme= share->connection_string;
 
 		/*
-		Remove addition of null terminator and store length
-		for each string  in share
+		   Remove addition of null terminator and store length
+		   for each string  in share
 		*/
 		if (!(share->username= (char *)strstr(share->scheme, "://")))
 			goto error;
@@ -73,9 +84,9 @@ parse_url(FOREIGN_SERVER *share) {
 			if ((strchr(share->password, '/') || strchr(share->hostname, '@')))
 				goto error;
 			/*
-			Found that if the string is:
-			user:@hostname:port/db/table
-			Then password is a null string, so set to NULL
+			   Found that if the string is:
+			   user:@hostname:port/db/table
+			   Then password is a null string, so set to NULL
 			*/
 			if (share->password[0] == '\0')
 				share->password= NULL;
@@ -224,7 +235,9 @@ redis_init(UDF_INIT *initid,
 void
 redis_deinit(UDF_INIT *initid)
 {
-	// nothing to do ...
+	if (initid->ptr != NULL) {
+		free(initid->ptr);
+	}
 }
 
 
@@ -244,13 +257,21 @@ redis(UDF_INIT      *initid,
 		if (args->arg_type[0] != STRING_RESULT ||
 		    args->arg_type[1] != STRING_RESULT) {
 			// invalid arguments
-			*error = 1;
-			return result;
+			*error   = 1;
+			return NULL;
 		}
 	}
 
-	FOREIGN_SERVER *server;
+	FOREIGN_SERVER *server = NULL;
+	redisContext   *ctx    = NULL;
+	redisReply     *reply  = NULL;
+
 	server = malloc(sizeof(FOREIGN_SERVER));
+	if (server == NULL) {
+		//result = getErrorResult("out of memory");
+		*error = 1;
+		goto final;
+	}
 
 	// import argument server 
 	server->connection_string = strdup(args->args[0]);
@@ -263,12 +284,11 @@ redis(UDF_INIT      *initid,
 	}
 
 	// connection to redis
-	redisContext *ctx = redisConnect(server->hostname, server->port);
+	ctx = redisConnect(server->hostname, server->port);
 	if (ctx != NULL && ctx->err) {
 		result = getErrorResult(ctx->errstr);
 		goto final;
 	}
-	redisReply *reply;
 	// send AUTH command to redis
 	if (server->password != NULL) {
 		reply = redisCommand(ctx, "AUTH %s", server->password);
@@ -297,13 +317,15 @@ redis(UDF_INIT      *initid,
 	reply = redisCommandArgv(ctx, argc, (const char**)argv, NULL);
 	result = getResultFromRedisReply(reply);
 
-	freeReplyObject(reply);
-	redisFree(ctx);
-	free(server);
-
 final:
+	if (reply  != NULL) freeReplyObject(reply);
+	if (ctx    != NULL) redisFree(ctx);
+	if (server != NULL) freeServer(server);
+
 	if (result != NULL) {
 		*length = strlen(result);
+		initid->max_length = *length;
+		initid->ptr = result;
 	} else {
 		*is_null = 1;
 	}
