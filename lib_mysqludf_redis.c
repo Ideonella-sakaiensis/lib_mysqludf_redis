@@ -221,7 +221,7 @@ redis_init(UDF_INIT *initid,
 		initid->ptr = NULL;
 	} else {
 		if (args->arg_type[0] != STRING_RESULT ||
-				args->arg_type[1] != STRING_RESULT) {
+		    args->arg_type[1] != STRING_RESULT) {
 			strcpy(message, "invalid arguments.");
 			return EXIT_FAILURE;
 		}
@@ -268,7 +268,7 @@ redis(UDF_INIT      *initid,
 
 	server = malloc(sizeof(FOREIGN_SERVER));
 	if (server == NULL) {
-		//result = getErrorResult("out of memory");
+		// out of memory
 		*error = 1;
 		goto final;
 	}
