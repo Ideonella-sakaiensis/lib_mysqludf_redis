@@ -268,7 +268,7 @@ mysql>  SELECT `redis`('redis://@127.0.0.1/0/', 'SCAN', '0', 'MATCH', 'prefix*')
 
 待完成事項
 ----------
-- [x] 實作 Redis 連線驗證機制。
+- [x] 實作 Redis 連線驗證機制。(2017-12-30)
 - [ ] 補充 redis DSN 字串建構函式。
 
 [回目錄](#%E7%9B%AE%E9%8C%84)
