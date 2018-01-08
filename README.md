@@ -152,7 +152,7 @@ $ make install
 # install UDF to Mysql/MariaDB server
 $ make installdb
 ```
-> **NOTE**: If the Mysql/Mariadb is an earlier version or installed from source code, the default include path might be invalid; use `` make INCLUDE_PATH=`mysql_config --variable=pkgincludedir` `` to assign `INCLUDE_PATH` variable for compilation.
+> **NOTE**: If the Mysql/MariaDB is an earlier version or installed from source code, the default include path might be invalid; use `` make INCLUDE_PATH=`mysql_config --variable=pkgincludedir` `` to assign `INCLUDE_PATH` variable for compilation.
 
 
 #### Compilation Argumnets
@@ -172,7 +172,7 @@ $ make installdb
 
   Clear the compiled files and resources.
 
-* `distcan`
+* `distclean`
 
   Like the `clean` and also remove the dependencies resources.
 
