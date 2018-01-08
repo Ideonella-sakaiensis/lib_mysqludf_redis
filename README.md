@@ -9,7 +9,9 @@ Provides UDF commands to access Redis from Mysql/MariaDB.
 * [Synopsis](#synopsis)
 * [System Requirements](#system-requirements)
 * [Compilation and Install Plugin Library](#compilation-and-install-plugin-library)
-* [Register and Unregister UDF](#register-and-unregister-udf)
+    * [Compilation Argumnets](#compilation-argumnets)
+    * [Compilation Variable](#compilation-variable)
+* [Install and Uninstall UDF](#install-and-uninstall-udf)
 * [Usage](#usage)
 * [TODO](#todo)
 * [Copyright and License](#copyright-and-license)
@@ -23,7 +25,7 @@ Synopsis
 <summary></summary>
 figure01
   digraph G {
-  
+
     rankdir = "LR";
     size ="8,8";
     edge [
@@ -115,7 +117,7 @@ System Requirements
 
 Compilation and Install Plugin Library
 --------------------------------------
-Installing dependencies
+Installing compilation tools
 > CentOS
 > ```bash
 > # install tools
@@ -134,14 +136,46 @@ Installing dependencies
 > $ apt-get install -y libmariadb-dev
 > ```
 
-To compile the plugin libraray just simply type `make` and `make install`.
-```
-$ make
-$ make install
-```
-> **NOTE**: If MariaDB developement library is 5.5, use `make INCLUDE_PATH=/usr/include/mysql` for compiling.
+> FreeBSD
+> ```bash
+> # install tools
+> $ pkg install -y gmake wget gcc git-lite
+> ```
 
-The compilation arguments can be use in `make`:
+To compile the plugin library just simply type `make` and `make install`. -or- `gmake` and `gmake install` on FreeBSD.
+```bash
+$ make
+# install plugin library to plugin directory
+$ make install
+# install UDF to Mysql/MariaDB server
+$ make installdb
+```
+> **NOTE**: If the Mysql/Mariadb is an earlier version or installed from source code, the default include path might be invalid; use `` make INCLUDE_PATH=`mysql_config --variable=pkgincludedir` `` to assign `INCLUDE_PATH` variable for compilation.
+
+
+#### Compilation Argumnets
+* `install`
+
+  Install the plugin library to Mysql plugin directory.
+
+* `installdb`
+
+  Install UDFs to Mysql/MariaDB server.
+
+* `uninstalldb`
+
+  Uninstall UDFs from Mysql/MariaDB server.
+
+* `clean`
+
+  Clear the compiled files and resources.
+
+* `distcan`
+
+  Like the `clean` and also remove the dependencies resources.
+
+#### Compilation Variable
+The compilation variable can be use in `make`:
 * `HIREDIS_MODULE_VER`
 
   The [hiredis](https://github.com/redis/hiredis) version to be compiled. If it is not specified, the default value is `0.13.3`.
@@ -152,11 +186,17 @@ The compilation arguments can be use in `make`:
 
 * `INCLUDE_PATH`
 
-  The MariaDB or Mysql C header path. If it is not specified, the default value is `/usr/include/mysql/server`.
+  The MariaDB or Mysql C header path. If it is not specified, the default will be the Mysql variable `pkgincludedir`. The value can be displayed by executing the following command:
+  ``` bash
+  $ echo `mysql_config --variable=pkgincludedir`/server
+  ```
 
 * `PLUGIN_PATH`
 
-  The MariaDB or Mysql plugin path. The value can be obtained via running the sql statement `SHOW VARIABLES LIKE '%plugin_dir%';` in MariaDB/Mysql server. If it is not specified, will detect the plugin path with `/usr/lib/mysql/plugin` or `/usr/lib64/mysql/plugin`.
+  The MariaDB or Mysql plugin path. The value can be obtained via running the sql statement `SHOW VARIABLES LIKE '%plugin_dir%';` in MariaDB/Mysql server. If it is not specified, the default will be Mysql variable `plugindir`. The value can be displayed by executing the following command:
+  ``` bash
+  $ mysql_config --plugindir
+  ```
 
 example:
 ```bash
@@ -167,15 +207,24 @@ $ make install
 [Back to TOC](#table-of-contents)
 
 
-Register and Unregister UDF
----------------------------
-To register UDF, running the following sql statement:
-```sql
-mysql>  CREATE FUNCTION `redis` RETURNS STRING SONAME 'lib_mysqludf_redis.so';
+Install and Uninstall UDF
+-------------------------
+To install UDF from `make`:
+
+```bash
+$ make installdb
 ```
-To unregister UDF, running the following sql statement:
+
+> or executing the following sql statement on Mysql/MariaDB server:
+> 
+> ```sql
+> mysql>  CREATE FUNCTION `redis` RETURNS STRING SONAME 'lib_mysqludf_redis.so';
+> ```
+
+To uninstall UDF with `make uninstalldb` -or- executing the following sql statement on Mysql/MariaDB server:
+
 ```sql
-mysql>  DROP FUNCTION `redis`;
+mysql>  DROP FUNCTION IF EXISTS `redis`;
 ```
 
 [Back to TOC](#table-of-contents)
@@ -188,6 +237,8 @@ Usage
 Call a Redis command by specified `$connection_string`, `$command`, and individual arguments.
 
 * **$connection_string** - represent the Redis server to be connected, the value is a DSN connection string, must be one of following type:
+  - **redis**://:_`<password>`_**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
+  - **redis**://:_`<password>`_**@**_`<host>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_**/**_`<database>`_**/**
 * **$command**, **$args...** - the Redis command and arguments. See also [https://redis.io/commands](https://redis.io/commands) for further details.
@@ -200,6 +251,7 @@ The function returns a JSON string indicating success or failure of the operatio
 >    "out": "OK"
 > }
 > ```
+
 > the failure output:
 > ```json
 > {
@@ -218,6 +270,21 @@ The following examples illustrate how to use the function contrast with `redis-c
 mysql>  SELECT `redis`('redis://@127.0.0.1/8/', 'PING')\G
 *************************** 1. row ***************************
 `redis`('redis://@127.0.0.1/8/', 'PING'): {
+        "out":  "PONG"
+}
+1 row in set (0.00 sec)
+
+
+
+/*
+  the following statement likes:
+
+    $ redis-cli -h 127.0.0.1 -a foobared -n 8 PING
+    PONG
+*/
+mysql>  SELECT `redis`('redis://:foobared@127.0.0.1/8/', 'PING')\G
+*************************** 1. row ***************************
+`redis`('redis://:foobared@127.0.0.1/8/', 'PING'): {
         "out":  "PONG"
 }
 1 row in set (0.00 sec)
@@ -275,7 +342,7 @@ mysql>  SELECT `redis`('redis://@127.0.0.1/0/', 'SCAN', '0', 'MATCH', 'prefix*')
 
 TODO
 ----
-- [ ] implement Redis Authentication
+- [x] implement Redis Authentication (2017-12-30)
 - [ ] add redis DSN string builder function
 
 [Back to TOC](#table-of-contents)
