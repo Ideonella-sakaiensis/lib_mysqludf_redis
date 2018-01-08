@@ -9,7 +9,9 @@ lib_mysqludf_redis
 * [簡介](#%E7%B0%A1%E4%BB%8B)
 * [系統需求](#%E7%B3%BB%E7%B5%B1%E9%9C%80%E6%B1%82)
 * [編譯與安裝外掛元件](#%E7%B7%A8%E8%AD%AF%E8%88%87%E5%AE%89%E8%A3%9D%E5%A4%96%E6%8E%9B%E5%85%83%E4%BB%B6)
-* [註冊與註銷 UDF](#%E8%A8%BB%E5%86%8A%E8%88%87%E8%A8%BB%E9%8A%B7-udf)
+    * [編譯參數](#%E7%B7%A8%E8%AD%AF%E5%8F%83%E6%95%B8)
+    * [編譯變數](#%E7%B7%A8%E8%AD%AF%E8%AE%8A%E6%95%B8)
+* [安裝與卸載 UDF](#%E5%AE%89%E8%A3%9D%E8%88%87%E5%8D%B8%E8%BC%89-udf)
 * [使用方式](#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)
 * [待完成事項](#%E5%BE%85%E5%AE%8C%E6%88%90%E4%BA%8B%E9%A0%85)
 * [授權條款](#%E6%8E%88%E6%AC%8A%E6%A2%9D%E6%AC%BE)
@@ -59,14 +61,48 @@ lib_mysqludf_redis
 > $ apt-get install -y libmariadb-dev
 > ```
 
-要編譯外掛元件最簡單的方式就是直接執行 `make` 與 `make install`.
-```
-$ make
-$ make install
-```
-> **附記**：如果使用的 MariaDB developement library 版本是 5.5，請使用 `make INCLUDE_PATH=/usr/include/mysql` 來編譯。
+> FreeBSD
+> ```bash
+> # 安裝工具
+> $ pkg install -y gmake wget gcc git-lite
+> ```
 
-下面是編譯時的自訂參數，可以被使用在 `make`：
+要編譯外掛元件最簡單的方式就是直接執行 `make` 與 `make install`。或於FreeBSD上使用 `gmake` 與 `gmake install`。
+```bash
+$ make
+
+# 安裝外掛程式庫到目的資料夾
+$ make install
+
+# 安裝 UDF 到 Mysql/MariaDB 伺服器
+$ make installdb
+```
+> **附記**：如果使用的 Mysql/MariaDB 是早期版本，或是使用手動編譯方式安裝，預設的 include 路徑可能無法使用；請於編譯時使用 `` make INCLUDE_PATH=`mysql_config --variable=pkgincludedir` `` 指定 `INCLUDE_PATH` 變數進行編譯。
+
+
+#### 編譯參數
+* `install`
+
+  安裝外掛程式庫到指定的 Mysql 外掛資料夾。
+
+* `installdb`
+
+  安裝/註冊 UDFs 到 Mysql/MariaDB 伺服器。
+
+* `uninstalldb`
+
+  卸載/註銷 UDFs。
+
+* `clean`
+
+  清除編譯檔案。
+
+* `distclean`
+
+  如同 `clean` 指令，且同時還清理相依套件資源。
+
+#### 編譯變數
+下面是編譯時的變數，可以被使用在 `make`：
 * `HIREDIS_MODULE_VER`
 
   要提供給元件編譯的 [hiredis](https://github.com/redis/hiredis) 版本。如果該值為空或未指定，其預設值為 `0.13.3`。
@@ -77,11 +113,17 @@ $ make install
 
 * `INCLUDE_PATH`
 
-  指定要被參考的 MariaDB/Mysql C 標頭檔。如果該值為空或未指定，其預設值為 `/usr/include/mysql/server`。
+  指定要被參考的 MariaDB/Mysql C 標頭檔。如果該值為空或未指定，其預設值指定為 Mysql `pkgincludedir` 變數。這個值可以經由下列命令取得：
+  ``` bash
+  $ echo `mysql_config --variable=pkgincludedir`/server
+  ```
 
 * `PLUGIN_PATH`
 
-  指定 MariaDB/Mysql 的外掛元件檔案路徑。這個值可以在 MariaDB/Mysql 中，經由 `SHOW VARIABLES LIKE '%plugin_dir%';` 指令取得。如果該值為空或未指定，將會探測 `/usr/lib/mysql/plugin` 或 `/usr/lib64/mysql/plugin` 來決定路徑位置。
+  指定 MariaDB/Mysql 的外掛元件檔案路徑。這個值可以在 MariaDB/Mysql 中，經由 `SHOW VARIABLES LIKE '%plugin_dir%';` 指令取得。如果該值為空或未指定，其預設值指定為 Mysql `plugindir` 變數。這個值可以經由下列命令取得：
+  ``` bash
+  $ mysql_config --plugindir
+  ```
 
 範例:
 ```bash
@@ -92,15 +134,23 @@ $ make install
 [回目錄](#%E7%9B%AE%E9%8C%84)
 
 
-註冊與註銷 UDF
+安裝與卸載 UDF
 --------------
-要註冊 UDF，執行下列 sql 陳述式：
-```sql
-mysql>  CREATE FUNCTION `redis` RETURNS STRING SONAME 'lib_mysqludf_redis.so';
+使用 `make` 安裝 UDF：
+
+```bash
+$ make installdb
 ```
-要註銷 UDF，執行下列 sql 陳述式：
+
+> 或於 Mysql/MariaDB 中，手動執行下列 sql 陳述式：
+>
+> ```sql
+> mysql>  CREATE FUNCTION `redis` RETURNS STRING SONAME 'lib_mysqludf_redis.so';
+> ```
+
+要卸載/註銷 UDF，可以使用 `make uninstalldb`；或於 Mysql/MariaDB 中，執行下列 sql 陳述式：
 ```sql
-mysql>  DROP FUNCTION `redis`;
+mysql>  DROP FUNCTION IF EXISTS `redis`;
 ```
 
 [回目錄](#%E7%9B%AE%E9%8C%84)
@@ -113,6 +163,8 @@ mysql>  DROP FUNCTION `redis`;
 呼叫 Redis 命令，藉由指定 `$connection_string`, `$command` 以及命令參數。
 
 * **$connection_string** - 表示要連線的 Redis 主機，使用 DSN 連線字串表示，其內容必須是下列形式之一：
+  - **redis**://:_`<password>`_**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
+  - **redis**://:_`<password>`_**@**_`<host>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_**/**_`<database>`_**/**
 * **$command**, **$args...** - Redis 命令與其參數。請詳見 Redis 官網 [https://redis.io/commands](https://redis.io/commands)。
@@ -125,6 +177,7 @@ mysql>  DROP FUNCTION `redis`;
 >    "out": "OK"
 > }
 > ```
+
 > 若失敗則輸出：
 > ```json
 > {
@@ -143,6 +196,21 @@ mysql>  DROP FUNCTION `redis`;
 mysql>  SELECT `redis`('redis://@127.0.0.1/8/', 'PING')\G
 *************************** 1. row ***************************
 `redis`('redis://@127.0.0.1/8/', 'PING'): {
+        "out":  "PONG"
+}
+1 row in set (0.00 sec)
+
+
+
+/*
+  下面的陳述式如同：
+
+    $ redis-cli -h 127.0.0.1 -a foobared -n 8 PING
+    PONG
+*/
+mysql>  SELECT `redis`('redis://:foobared@127.0.0.1/8/', 'PING')\G
+*************************** 1. row ***************************
+`redis`('redis://:foobared@127.0.0.1/8/', 'PING'): {
         "out":  "PONG"
 }
 1 row in set (0.00 sec)
@@ -200,7 +268,7 @@ mysql>  SELECT `redis`('redis://@127.0.0.1/0/', 'SCAN', '0', 'MATCH', 'prefix*')
 
 待完成事項
 ----------
-- [ ] 實作 Redis 連線驗證機制。
+- [x] 實作 Redis 連線驗證機制。
 - [ ] 補充 redis DSN 字串建構函式。
 
 [回目錄](#%E7%9B%AE%E9%8C%84)
