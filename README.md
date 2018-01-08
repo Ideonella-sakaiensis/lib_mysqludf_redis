@@ -145,8 +145,10 @@ Installing compilation tools
 To compile the plugin library just simply type `make` and `make install`. -or- `gmake` and `gmake install` on FreeBSD.
 ```bash
 $ make
+
 # install plugin library to plugin directory
 $ make install
+
 # install UDF to Mysql/MariaDB server
 $ make installdb
 ```
