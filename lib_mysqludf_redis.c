@@ -33,12 +33,12 @@ typedef struct st_foreign_server {
 
 
 static void
-freeServer(FOREIGN_SERVER *server) {
-	if (server != NULL) {
-		if (server->connection_string != NULL) {
-			free(server->connection_string);
+freeServerShare(FOREIGN_SERVER *share) {
+	if (share != NULL) {
+		if (share->connection_string != NULL) {
+			free(share->connection_string);
 		}
-		free(server);
+		free(share);
 	}
 }
 
@@ -320,7 +320,7 @@ redis(UDF_INIT      *initid,
 final:
 	if (reply  != NULL) freeReplyObject(reply);
 	if (ctx    != NULL) redisFree(ctx);
-	if (server != NULL) freeServer(server);
+	if (server != NULL) freeServerShare(server);
 
 	if (result != NULL) {
 		*length = strlen(result);
