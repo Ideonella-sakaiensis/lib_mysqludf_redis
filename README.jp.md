@@ -9,7 +9,9 @@ Mysql/MariaDBのRedisにアクセスするための一連のUDF命令を提供�
 * [はじめに](#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB)
 * [システム要件](#%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E8%A6%81%E4%BB%B6)
 * [プラグインコンポーネントのコンパイルとインストール](#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%B3%E3%83%B3%E3%83%9D%E3%83%BC%E3%83%8D%E3%83%B3%E3%83%88%E3%81%AE%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB%E3%81%A8%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
-* [UDF 登録とキャンセル](#udf-%E7%99%BB%E9%8C%B2%E3%81%A8%E3%82%AD%E3%83%A3%E3%83%B3%E3%82%BB%E3%83%AB)
+    * [コンパイルのパラメータ](%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB%E3%81%AE%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF)
+    * [コンパイルの変數](%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB%E3%81%AE%E5%A4%89%E6%95%B8)
+* [UDF インストールとアンインストール](UDF%20%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%A8%E3%82%A2%E3%83%B3%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
 * [使用方式](#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)
 * [完成するために](#%E5%AE%8C%E6%88%90%E3%81%99%E3%82%8B%E3%81%9F%E3%82%81%E3%81%AB)
 * [ライセンス条項](#%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9%E6%9D%A1%E9%A0%85)
@@ -58,14 +60,48 @@ Mysql/MariaDBのRedisにアクセスするための一連のUDF命令を提供�
 > $ apt-get install -y libmariadb-dev
 > ```
 
-プラグインコンポーネントをコンパイルする最も簡単な方法は、プラグインコンポーネント `make` と `make install` を直接実行することです。
-```
-$ make
-$ make install
-```
-> **注**：もし開発ライブラリバージは MariaDB developement library 5.5 を使用している場合、 `make INCLUDE_PATH=/usr/include/mysql` をコンパイルしてください。
+> FreeBSD
+> ```bash
+> # ツールをインストールする
+> $ pkg install -y gmake wget gcc git-lite
+> ```
 
-以下は、コンパイル時のカスタムパラメータであり、 `make` で使用できます:
+プラグインコンポーネントをコンパイルする最も簡単な方法は、プラグインコンポーネント `make` と `make install` を直接実行することです。あるいは `gmake`と` gmake install`をFreeBSDにインストールします。
+```bash
+$ make
+
+# プラグインライブラリをインストール先フォルダにインストールする
+$ make install
+
+# Mysql/MariaDB サーバーに UDF をインストールする
+$ make installdb
+```
+> **注**：以前のバージョンの Mysql/MariaDB を使用している場合、または手動コンパイルを使用している場合は、デフォルトのインクルードパスが使用できない場合があります；コンパイル時に `INCLUDE_PATH` 変数を指定するには `` make INCLUDE_PATH=`mysql_config --variable=pkgincludedir` `` を使用してください。
+
+
+#### コンパイルのパラメータ
+* `install`
+
+  指定したMysqlプラグインフォルダにプラグインライブラリをインストールします。
+
+* `installdb`
+
+  Mysql/MariaDB サーバーにUDFsをインストール/登録します。
+
+* `uninstalldb`
+
+  UDFsのアンロード/登録解除。
+
+* `clean`
+
+  コンパイルされたファイルをクリアします。
+
+* `distclean`
+
+  `clean` 指示文と同様に、同時に依存関係を取り除きます。
+
+#### コンパイルの変數
+以下は、`make` で使用できるコンパイル時の変数です：
 * `HIREDIS_MODULE_VER`
 
   コンポーネントのコンパイルのために提供される [hiredis](https://github.com/redis/hiredis) バージョン。値が空であるか、または指定されていない場合、デフォルトは `0.13.3`です。
@@ -76,11 +112,17 @@ $ make install
 
 * `INCLUDE_PATH`
 
-  参照するMariaDB / Mysql Cヘッダを指定します。 値が空白または指定されていない場合、デフォルトは `/usr/include/mysql/server`です。
+  参照する MariaDB/Mysql C ヘッダを指定します。 値が空白または指定されていない場合、デフォルトは `pkgincludedir` です。この値は次のコマンドで取得できます：
+  ``` bash
+  $ echo `mysql_config --variable=pkgincludedir`/server
+  ```
 
 * `PLUGIN_PATH`
 
-  MariaDB/Mysql プラグインファイルのパスを指定する。この値はMariaDB/Mysqlのなかに，`SHOW VARIABLES LIKE '%plugin_dir%';`で取得。値が空であるか、または指定されていない場合、 `/usr/lib/mysql/plugin` または `/usr/lib64/mysql/plugin` を調べて、パスの場所を調べます。
+  MariaDB/Mysql プラグインファイルのパスを指定する。この値はMariaDB/Mysqlのなかに，`SHOW VARIABLES LIKE '%plugin_dir%';`コマンドで取得できます。値が空であるか、または指定されていない場合、 デフォルトは Mysqlの `plugindir` 変數です。この値は次のコマンドで取得できます：
+  ``` bash
+  $ mysql_config --plugindir
+  ```
 
 例:
 ```bash
@@ -91,15 +133,22 @@ $ make install
 [ディレクトリへ](#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA)
 
 
-UDF 登録とキャンセル
+UDF インストールとアンインストール
 --------------------
-UDFを登録するには、次のSQL文を実行します：
-```sql
-mysql>  CREATE FUNCTION `redis` RETURNS STRING SONAME 'lib_mysqludf_redis.so';
+`make`を使ってUDFをインストールしてください：
+```bash
+$ make installdb
 ```
-UDFをキャンセルするには、次のSQL文を実行します：
+
+> または Mysql/MariaDB で、次のSQL文を手動で実行します：
+>
+> ```sql
+> mysql>  CREATE FUNCTION `redis` RETURNS STRING SONAME 'lib_mysqludf_redis.so';
+> ```
+
+UDF をアンインストール/アン登録するには、`make uninstalldb` を使います；または Mysql/MariaDB で、次のSQL文を手動で実行します：
 ```sql
-mysql>  DROP FUNCTION `redis`;
+mysql>  DROP FUNCTION IF EXISTS `redis`;
 ```
 
 [ディレクトリへ](#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA)
@@ -112,6 +161,8 @@ mysql>  DROP FUNCTION `redis`;
 Redisコマンドを使用するため，`$ connection_string`、` $ command`とコマンドパラメータを指定すること。
 
 * **$connection_string** - 接続するRedisホストを示します，DSN接続文字列表現を使用する，その内容は次のいずれかでなければなりません：
+  -    **redis**://:_`<password>`_**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
+  - **redis**://:_`<password>`_**@**_`<host>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_:_`<port>`_**/**_`<database>`_**/**
   - **redis**://**@**_`<host>`_**/**_`<database>`_**/**
 * **$command**, **$args...** - Redisコマンドとそのパラメータ。Redis公式サイトをご覧ください [https://redis.io/commands](https://redis.io/commands)。
@@ -124,6 +175,7 @@ Redisコマンドを使用するため，`$ connection_string`、` $ command`と
 >    "out": "OK"
 > }
 > ```
+
 > 失敗した場合：
 > ```json
 > {
@@ -142,6 +194,21 @@ Redisコマンドを使用するため，`$ connection_string`、` $ command`と
 mysql>  SELECT `redis`('redis://@127.0.0.1/8/', 'PING')\G
 *************************** 1. row ***************************
 `redis`('redis://@127.0.0.1/8/', 'PING'): {
+        "out":  "PONG"
+}
+1 row in set (0.00 sec)
+
+
+
+/*
+  次のステートメントは同じです：
+
+    $ redis-cli -h 127.0.0.1 -a foobared -n 8 PING
+    PONG
+*/
+mysql>  SELECT `redis`('redis://:foobared@127.0.0.1/8/', 'PING')\G
+*************************** 1. row ***************************
+`redis`('redis://:foobared@127.0.0.1/8/', 'PING'): {
         "out":  "PONG"
 }
 1 row in set (0.00 sec)
@@ -199,7 +266,7 @@ mysql>  SELECT `redis`('redis://@127.0.0.1/0/', 'SCAN', '0', 'MATCH', 'prefix*')
 
 完成するために
 --------------
-- [ ] Redis 接続検証機構の実現。
+- [x] Redis 接続検証機構の実現。
 - [ ] redis DSN文字列コンストラクタを補足する。
 
 [ディレクトリへ](#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA)
