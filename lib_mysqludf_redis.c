@@ -314,7 +314,8 @@ redis(UDF_INIT      *initid,
 
 	int  argc   = args->arg_count - 1;
 	char **argv = ++args->args;
-	reply = redisCommandArgv(ctx, argc, (const char**)argv, NULL);
+	size_t *argvlen = ++args->lengths;
+	reply = redisCommandArgv(ctx, argc, (const char**)argv, (const size_t*)argvlen);
 	result = getResultFromRedisReply(reply);
 
 final:
