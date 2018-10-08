@@ -127,7 +127,7 @@ Installing compilation tools
 > $ yum install -y mariadb-devel
 > ```
 
-> Debain
+> Debian
 > ```bash
 > # install tools
 > $ apt-get install -y make wget gcc git
