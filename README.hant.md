@@ -52,7 +52,7 @@ lib_mysqludf_redis
 > $ yum install -y mariadb-devel
 > ```
 
-> Debain
+> Debian
 > ```bash
 > # 安裝工具
 > $ apt-get install -y make wget gcc git
