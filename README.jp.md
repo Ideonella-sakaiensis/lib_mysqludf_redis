@@ -51,7 +51,7 @@ Mysql/MariaDBのRedisにアクセスするための一連のUDF命令を提供�
 > $ yum install -y mariadb-devel
 > ```
 
-> Debain
+> Debian
 > ```bash
 > # ツールをインストールする
 > $ apt-get install -y make wget gcc git
